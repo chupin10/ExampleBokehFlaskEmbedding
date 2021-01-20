@@ -7,7 +7,7 @@ from typing import Dict, Tuple, Union
 
 BOKEH_LAUNCH_CMD = 'bokeh serve visualizations/{app} --allow-websocket-origin=127.0.0.1:5000'
 
-BokehServerMapping = Dict[int, Tuple[Union[subprocess.Popen, None], Path]]
+BokehServerMapping = Dict[Path, Tuple[Union[subprocess.Popen, None], int]]
 
 
 def get_server_map() -> BokehServerMapping:
@@ -20,16 +20,16 @@ def get_server_map() -> BokehServerMapping:
     for app in bk_apps:
         port += 1
         # None will be replaced by the subprocess that ends up running the server
-        app_ports[port] = (None, app)
+        app_ports[app] = (None, port)
     return app_ports
 
 
 def launch_bokeh_servers(app_ports: BokehServerMapping) -> BokehServerMapping:
-    for port, (_, app) in app_ports.items():
+    for app, (_, port) in app_ports.items():
         cmd = BOKEH_LAUNCH_CMD.format(app=app.name).split(' ')
         cmd += ['--port', str(port)]
         p = subprocess.Popen(cmd)
-        app_ports[port] = (p, app)
+        app_ports[app] = (p, port)
     return app_ports
 
 
