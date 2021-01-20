@@ -18,6 +18,13 @@ def create_app() -> Flask:
     viznames_to_server = {str(k.name.strip('.py')): k for (k, v) in vizes.items()}
     subprocess.Popen(['python3', 'run_bokeh_servers.py'])
 
+    @app.route('/visualizations')
+    def vis_index():
+        out = 'Visualizations online: '
+        for i, vname in enumerate(viznames_to_server.keys()):
+            out += (f', {vname}' if i != 0 else f'{vname}')
+        return out
+
     @app.route('/visualizations/<viz>')
     def visualizations(viz: str):
         app_path = viznames_to_server.get(viz, None)
